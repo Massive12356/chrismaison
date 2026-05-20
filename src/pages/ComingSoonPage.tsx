@@ -195,16 +195,32 @@ const ComingSoonPage = () => {
               className="mb-10 flex flex-wrap justify-center gap-3 lg:justify-start"
             >
               {[
-                { icon: Globe, label: 'Community Driven' },
-                { icon: Zap, label: 'Impactful Programs' },
-                { icon: Clock, label: 'Launching Soon' },
+                { icon: Globe, label: 'Community Driven', delay: 0 },
+                { icon: Zap, label: 'Impactful Programs', delay: 1.2 },
+                { icon: Clock, label: 'Launching Soon', delay: 2.4 },
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm"
+                  className="relative flex items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm"
                 >
-                  <item.icon className="h-3.5 w-3.5 text-[#FFA812]" />
-                  <span className="text-xs font-medium text-white/70">{item.label}</span>
+                  {/* Sweeping highlight */}
+                  <motion.div
+                    className="pointer-events-none absolute inset-0 rounded-full"
+                    style={{
+                      background:
+                        'linear-gradient(90deg, transparent 0%, rgba(230,78,3,0.15) 30%, rgba(255,168,18,0.25) 50%, rgba(230,78,3,0.15) 70%, transparent 100%)',
+                    }}
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: item.delay,
+                      repeatDelay: 1,
+                    }}
+                  />
+                  <item.icon className="relative z-10 h-3.5 w-3.5 text-[#FFA812]" />
+                  <span className="relative z-10 text-xs font-medium text-white/70">{item.label}</span>
                 </div>
               ))}
             </motion.div>
