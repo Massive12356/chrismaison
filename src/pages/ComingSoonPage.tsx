@@ -1,61 +1,50 @@
-import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import { Clock, Mail, ArrowRight, Globe, Zap } from 'lucide-react';
-
-// ----------------------------------------------------------------------
-// CONFIG: Change the launch date here.
-// ----------------------------------------------------------------------
-const LAUNCH_DATE = new Date(
-  new Date().getTime() + 30 * 24 * 60 * 60 * 1000
-);
+import { Clock, Mail, ArrowRight, Globe, Zap, CheckCircle2, Circle, Loader2 } from 'lucide-react';
 
 // Brand colors for the bouncing text color cycle
 const BRAND_COLORS = ['#E64E03', '#FFA812', '#ffffff', '#FF6B2C'];
 
-type TimeLeft = {
-  days: number;
-  hours: number;
-  minutes: number;
-  seconds: number;
-};
+// Rotating status messages
+const STATUS_MESSAGES = [
+  'Designing experiences...',
+  'Building the future...',
+  'Crafting with purpose...',
+  'Almost there...',
+  'Creating impact...',
+];
 
-const calculateTimeLeft = (target: Date): TimeLeft => {
-  const diff = target.getTime() - new Date().getTime();
-  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  return {
-    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((diff / (1000 * 60)) % 60),
-    seconds: Math.floor((diff / 1000) % 60),
-  };
-};
-
-const pad = (n: number) => n.toString().padStart(2, '0');
+// Milestones for the tracker
+const MILESTONES = [
+  { label: 'Research & Planning', done: true },
+  { label: 'Design & Branding', done: true },
+  { label: 'Core Development', active: true },
+  { label: 'Testing & QA', done: false },
+  { label: 'Launch', done: false },
+];
 
 const ComingSoonPage = () => {
-  const target = useMemo(() => LAUNCH_DATE, []);
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(() =>
-    calculateTimeLeft(target)
-  );
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [colorIndex, setColorIndex] = useState(0);
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setTimeLeft(calculateTimeLeft(target));
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [target]);
+  const [msgIndex, setMsgIndex] = useState(0);
 
   // Cycle the brand name color on every bounce
   useEffect(() => {
     const id = window.setInterval(() => {
       setColorIndex((prev) => (prev + 1) % BRAND_COLORS.length);
     }, 1200);
+    return () => window.clearInterval(id);
+  }, []);
+
+  // Rotate status messages
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setMsgIndex((prev) => (prev + 1) % STATUS_MESSAGES.length);
+    }, 3000);
     return () => window.clearInterval(id);
   }, []);
 
@@ -274,7 +263,7 @@ const ComingSoonPage = () => {
             </motion.div>
           </div>
 
-          {/* Right section - Glassmorphism countdown card */}
+          {/* Right section - Creative Mission Status Dashboard */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -288,11 +277,11 @@ const ComingSoonPage = () => {
               {/* Glass card */}
               <div className="relative rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-2xl">
                 {/* Card header */}
-                <div className="mb-8 flex items-center justify-between">
+                <div className="mb-6 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-[#E64E03]" />
                     <span className="text-xs font-medium uppercase tracking-widest text-white/50">
-                      Countdown
+                      Mission Status
                     </span>
                   </div>
                   <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
@@ -300,43 +289,129 @@ const ComingSoonPage = () => {
                   </div>
                 </div>
 
-                {/* Countdown grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { label: 'Days', value: timeLeft.days },
-                    { label: 'Hours', value: timeLeft.hours },
-                    { label: 'Min', value: timeLeft.minutes },
-                    { label: 'Sec', value: timeLeft.seconds },
-                  ].map((box) => (
-                    <div
-                      key={box.label}
-                      className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 transition-colors hover:border-[#E64E03]/20 hover:bg-white/[0.05]"
+                {/* Orbital radar animation */}
+                <div className="relative mb-8 flex items-center justify-center">
+                  <div className="relative h-40 w-40">
+                    {/* Outer ring */}
+                    <div className="absolute inset-0 rounded-full border border-white/[0.06]" />
+                    {/* Middle ring */}
+                    <div className="absolute inset-4 rounded-full border border-white/[0.08]" />
+                    {/* Inner ring */}
+                    <div className="absolute inset-8 rounded-full border border-white/[0.1]" />
+                    {/* Core ring */}
+                    <div className="absolute inset-12 rounded-full border border-[#E64E03]/20" />
+
+                    {/* Spinning radar sweep */}
+                    <motion.div
+                      className="absolute inset-0"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
                     >
-                      <motion.span
-                        key={box.value}
-                        initial={{ y: -10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="block text-3xl font-bold tabular-nums text-white"
-                      >
-                        {pad(box.value)}
-                      </motion.span>
-                      <span className="mt-1 block text-[11px] font-medium uppercase tracking-wider text-white/40">
-                        {box.label}
-                      </span>
-                      {/* Subtle gradient accent on hover */}
-                      <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-[#E64E03]/0 via-[#E64E03]/50 to-[#FFA812]/0 opacity-0 transition-opacity group-hover:opacity-100" />
+                      <div
+                        className="absolute left-1/2 top-0 h-1/2 w-px origin-bottom"
+                        style={{
+                          background: 'linear-gradient(to top, transparent, #E64E03)',
+                        }}
+                      />
+                      <div className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-[#E64E03] shadow-lg shadow-[#E64E03]/50" />
+                    </motion.div>
+
+                    {/* Orbiting dots */}
+                    <motion.div
+                      className="absolute inset-4"
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <div className="absolute right-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[#FFA812]" />
+                    </motion.div>
+                    <motion.div
+                      className="absolute inset-8"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white/60" />
+                    </motion.div>
+
+                    {/* Center pulsing core */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.3, 1],
+                          opacity: [0.6, 1, 0.6],
+                        }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                        className="h-3 w-3 rounded-full bg-[#E64E03] shadow-lg shadow-[#E64E03]/50"
+                      />
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                {/* Rotating status message */}
+                <div className="mb-6 flex items-center justify-center">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={msgIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.4 }}
+                      className="text-sm font-medium text-[#FFA812]"
+                    >
+                      {STATUS_MESSAGES[msgIndex]}
+                    </motion.p>
+                  </AnimatePresence>
                 </div>
 
                 {/* Divider */}
-                <div className="my-8 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                <div className="mb-6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-                {/* Progress indicator */}
+                {/* Milestone tracker */}
+                <div className="space-y-3">
+                  {MILESTONES.map((m, i) => {
+                    const isDone = m.done;
+                    const isActive = 'active' in m && m.active;
+                    return (
+                      <div key={i} className="flex items-center gap-3">
+                        {isDone ? (
+                          <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-[#E64E03]" />
+                        ) : isActive ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                          >
+                            <Loader2 className="h-4 w-4 flex-shrink-0 text-[#FFA812]" />
+                          </motion.div>
+                        ) : (
+                          <Circle className="h-4 w-4 flex-shrink-0 text-white/20" />
+                        )}
+                        <span
+                          className={`text-xs font-medium ${
+                            isDone
+                              ? 'text-white/60 line-through'
+                              : isActive
+                              ? 'text-[#FFA812]'
+                              : 'text-white/30'
+                          }`}
+                        >
+                          {m.label}
+                        </span>
+                        {isActive && (
+                          <span className="ml-auto rounded-full bg-[#FFA812]/10 px-2 py-0.5 text-[10px] font-medium text-[#FFA812]">
+                            In Progress
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Divider */}
+                <div className="my-6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+                {/* Looping progress bar */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-white/40">Progress</span>
+                    <span className="text-white/40">Overall Progress</span>
                     <span className="text-[#FFA812]">Building...</span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
